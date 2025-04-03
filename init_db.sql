@@ -1,4 +1,12 @@
+-- Création de la base de données (à exécuter manuellement avant ce script si nécessaire)
+-- CREATE DATABASE taskmasterdb;
 
+-- Connexion à la base de données (à faire dans psql ou via interface)
+-- \c taskmasterdb
+
+-- Supprimer les tables si elles existent déjà (pour éviter les conflits)
+
+DROP TABLE IF EXISTS task_assignees, tasks, group_members, groups, users CASCADE;
 -- Création de la table des utilisateurs
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
