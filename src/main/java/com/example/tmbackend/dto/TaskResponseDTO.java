@@ -1,0 +1,41 @@
+package com.example.tmbackend.dto;
+
+import java.util.Date;
+import java.util.List;
+
+public class TaskResponseDTO {
+    private Integer id;
+    private String name;
+    private String description;
+    private Date dueDate;
+    private String status;
+    private Integer groupId;
+    private Integer adminId;
+    private List<Integer> assignedMemberIds;
+
+    // Getters et setters
+
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public Date getDueDate() { return dueDate; }
+    public void setDueDate(Date dueDate) { this.dueDate = dueDate; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public Integer getGroupId() { return groupId; }
+    public void setGroupId(Integer groupId) { this.groupId = groupId; }
+
+    public Integer getAdminId() { return adminId; }
+    public void setAdminId(Integer adminId) { this.adminId = adminId; }
+
+    public List<Integer> getAssignedMemberIds() { return assignedMemberIds; }
+    public void setAssignedMemberIds(List<Integer> assignedMemberIds) { this.assignedMemberIds = assignedMemberIds; }
+}
