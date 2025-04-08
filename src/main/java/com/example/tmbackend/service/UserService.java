@@ -77,4 +77,12 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Email ou mot de passe incorrect."));
     }
 
+    public void deleteUser(Integer id) {
+        if (!userRepository.existsById(id)) {
+            throw new NotFoundException("Utilisateur introuvable");
+        }
+        userRepository.deleteById(id);
+    }
+
+
 }
