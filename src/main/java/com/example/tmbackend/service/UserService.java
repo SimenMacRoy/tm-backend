@@ -5,18 +5,22 @@ import com.example.tmbackend.exceptions.InvalidDataException;
 import com.example.tmbackend.exceptions.NotFoundException;
 import com.example.tmbackend.model.User;
 import com.example.tmbackend.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository){
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder){
         this.userRepository = userRepository ;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<User> getAll(){
@@ -35,18 +39,28 @@ public class UserService {
         if(user.getId() != null){
             throw new InvalidDataException("L'ID du membre doit être vide afin d'être déterminé via la séquence.");
         }
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(encodedPassword);
         return userRepository.save(user);
     }
 
-    public void updateUser(User user){
-        this.userRepository.save(user);
+    public User updateUser(User user) {
+        Optional<User> existingUser = userRepository.findById(user.getId());
+        if (existingUser.isPresent()) {
+            User updatedUser = existingUser.get();
+            updatedUser.setFirstName(user.getFirstName());
+            updatedUser.setLastName(user.getLastName());
+            updatedUser.setEmail(user.getEmail());
+            updatedUser.setTelephone(user.getTelephone());
+            updatedUser.setAddress(user.getAddress());
+            updatedUser.setPassword(user.getPassword());
+            updatedUser.setRole(user.getRole());
+            return userRepository.save(updatedUser);
+        } else {
+            throw new NotFoundException("L'utilisateur avec l'ID " + user.getId() + " n'existe pas.");
+        }
     }
 
-    public User login(String email, String password) throws NotFoundException {
-        return userRepository.findByEmail(email)
-                .filter(u -> u.getPassword().equals(password))
-                .orElseThrow(() -> new NotFoundException("Email ou mot de passe incorrect."));
-    }
 
     public UserDTO mapToDTO(User user) {
         return new UserDTO(
@@ -68,13 +82,6 @@ public class UserService {
 
     public UserDTO getUserDTOById(Integer id) {
         return mapToDTO(getUserById(id));
-    }
-
-    public UserDTO loginAndGetDTO(String email, String password) {
-        return userRepository.findByEmail(email)
-                .filter(user -> user.getPassword().equals(password))
-                .map(this::mapToDTO)
-                .orElseThrow(() -> new RuntimeException("Email ou mot de passe incorrect."));
     }
 
 }
