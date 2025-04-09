@@ -79,7 +79,7 @@ public class SecurityConfig {
                         sessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(authorizeHttpRequestsConfigurer ->
-                        authorizeHttpRequestsConfigurer.requestMatchers("/task-master/auth/login").permitAll()
+                        authorizeHttpRequestsConfigurer.requestMatchers("/task-master/**").permitAll()
                                 .anyRequest().authenticated()
                 );
 
