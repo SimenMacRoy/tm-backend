@@ -3,8 +3,10 @@ package com.example.tmbackend.controller;
 import com.example.tmbackend.dto.UserDTO;
 import com.example.tmbackend.model.User;
 import com.example.tmbackend.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -36,22 +38,17 @@ public class UserController {
         return ResponseEntity.ok(userService.mapToDTO(insertedUser));
     }
 
-    @PutMapping
-    public UserDTO updateUser(@PathVariable int id, @RequestBody User user){
-        if(id != user.getId()){
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Integer id, @RequestBody User user) {
+        if (id != user.getId()) {
             throw new IllegalArgumentException("L'ID spécifié dans l'URL ne correspond pas à celui du membre fourni.");
         }
-        this.userService.updateUser(user);
-        return userService.mapToDTO(user);
+        try {
+            User updatedUser = userService.updateUser(user);
+            return ResponseEntity.ok(userService.mapToDTO(updatedUser));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Erreur lors de la mise à jour de l'utilisateur", e);
+        }
     }
-
-    @PostMapping("/login")
-    public UserDTO login(@RequestBody Map<String, String> credentials) {
-        String email = credentials.get("email");
-        String password = credentials.get("password");
-        return userService.loginAndGetDTO(email, password);
-    }
-
-
 
 }

@@ -1,10 +1,19 @@
 package com.example.tmbackend.dto;
 
-public class UserDTO {
+import com.example.tmbackend.model.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.Collection;
+import java.util.Collections;
+
+public class UserDTO implements UserDetails {
+
     private Integer id;
     private String firstName;
     private String lastName;
     private String email;
+    private String password;
     private String telephone;
     private String address;
     private String role;
@@ -20,6 +29,17 @@ public class UserDTO {
         this.telephone = telephone;
         this.address = address;
         this.role = role;
+    }
+
+    public UserDTO(User user) {
+        this.id = user.getId();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.email = user.getEmail();
+        this.password = user.getPassword();
+        this.telephone = user.getTelephone();
+        this.address = user.getAddress();
+        this.role = user.getRole();
     }
 
     // Getters & Setters
@@ -43,4 +63,40 @@ public class UserDTO {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    // Implémentation des méthodes de UserDetails
+    @Override
+    public Collection<SimpleGrantedAuthority> getAuthorities() {
+        // Retourne les rôles de l'utilisateur sous forme de SimpleGrantedAuthority
+        return Collections.singletonList(new SimpleGrantedAuthority(role));
+    }
+
+    @Override
+    public String getUsername() {
+        // Utilise l'email comme nom d'utilisateur pour l'authentification
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Personnaliser si nécessaire
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Personnaliser si nécessaire
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Personnaliser si nécessaire
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // Personnaliser si nécessaire
+    }
 }
