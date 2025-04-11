@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "users", schema="taskmaster_db")
+@Table(name = "users")
 public class User {
 
     @Id

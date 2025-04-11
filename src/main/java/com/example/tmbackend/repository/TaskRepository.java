@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface TaskRepository extends CrudRepository<Task, Integer> {
     List<Task> findByAdminId(Integer adminId);
-    List<Task> findByGroupId(Integer groupId);
-
-    List<Task> findByAdmin(User admin);
+    List<Task> findByAssignedMembers_Id(Integer userId);
+    List<Task> findByAdminIdAndStatus(Integer adminId, String status);
 }
+
