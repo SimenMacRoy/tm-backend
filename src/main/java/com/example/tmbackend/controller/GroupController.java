@@ -60,4 +60,9 @@ public class GroupController {
     public Group removeMembersFromGroup(@PathVariable Integer id, @RequestBody List<Integer> memberIdsToRemove) {
         return groupService.removeMembers(id, memberIdsToRemove);
     }
+
+    @PutMapping("/{id}/update-name")
+    public GroupResponseDTO updateGroupName(@PathVariable Integer id, @RequestParam String newName) {
+        return groupService.updateGroupName(id, newName);
+    }
 }

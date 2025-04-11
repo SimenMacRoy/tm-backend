@@ -113,4 +113,12 @@ public class GroupService {
         return dto;
     }
 
+    public GroupResponseDTO updateGroupName(Integer groupId, String newName) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Groupe non trouvé"));
+
+        group.setName(newName);
+        return toDTO(groupRepository.save(group));
+    }
+
 }
