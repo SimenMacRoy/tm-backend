@@ -1,64 +1,117 @@
 package com.example.tmbackend.service;
 
-import com.example.tmbackend.dto.TaskDTO;
+import com.example.tmbackend.dto.TaskResponseDTO;
+import com.example.tmbackend.exceptions.NotFoundException;
+import com.example.tmbackend.model.Group;
 import com.example.tmbackend.model.Task;
 import com.example.tmbackend.model.User;
+import com.example.tmbackend.repository.GroupRepository;
 import com.example.tmbackend.repository.TaskRepository;
 import com.example.tmbackend.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class TaskService {
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final GroupRepository groupRepository;
 
-    @Autowired
-    public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository, GroupRepository groupRepository) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.groupRepository = groupRepository;
     }
 
-    // Créer une nouvelle tâche
-    public Task createTask(Task task) {
-        return taskRepository.save(task);
+    public List<TaskResponseDTO> getAllTasksByAdmin(Integer adminId) {
+        return taskRepository.findByAdminId(adminId)
+                .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // Récupérer toutes les tâches d'un admin
-    public List<Task> getTasksByAdmin(User admin) {
-        return taskRepository.findByAdmin(admin);
+    public List<TaskResponseDTO> getTasksByAssignedMember(Integer userId) {
+        return taskRepository.findByAssignedMembers_Id(userId)
+                .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    // Mettre à jour une tâche
-    public Task updateTask(Task task) {
-        return taskRepository.save(task);
+    public TaskResponseDTO createTask(Task task, Integer groupId, Integer adminId, List<Integer> memberIds) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new NotFoundException("Groupe non trouvé"));
+        User admin = userRepository.findById(adminId)
+                .orElseThrow(() -> new NotFoundException("Administrateur non trouvé"));
+
+        task.setGroup(group);
+        task.setAdmin(admin);
+
+        if (memberIds != null && !memberIds.isEmpty()) {
+            List<User> members = StreamSupport
+                    .stream(userRepository.findAllById(memberIds).spliterator(), false)
+                    .collect(Collectors.toList());
+            task.setAssignedMembers(members);
+        }
+
+        Task saved = taskRepository.save(task);
+        return toDTO(saved);
     }
 
-    // Supprimer une tâche
-    public void deleteTask(Integer taskId) {
-        taskRepository.deleteById(taskId);
+    public void deleteTask(Integer id) {
+        if (!taskRepository.existsById(id))
+            throw new NotFoundException("Tâche introuvable pour suppression");
+        taskRepository.deleteById(id);
     }
 
-    // Mapper Task à TaskDTO
-    public TaskDTO mapToDTO(Task task) {
-        TaskDTO dto = new TaskDTO();
+    public TaskResponseDTO updateTask(Integer id, Task updatedTask, Integer userId, boolean isAdmin) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Tâche introuvable"));
+
+        if (isAdmin) {
+            task.setName(updatedTask.getName());
+            task.setDueDate(updatedTask.getDueDate());
+            task.setStatus(updatedTask.getStatus());
+            task.setDescription(updatedTask.getDescription());
+            if (updatedTask.getAssignedMembers() != null) {
+                task.setAssignedMembers(updatedTask.getAssignedMembers());
+            }
+        } else {
+            if (task.getAssignedMembers().stream().noneMatch(m -> m.getId().equals(userId))) {
+                throw new NotFoundException("Vous n'êtes pas autorisé à modifier cette tâche.");
+            }
+            task.setDescription(updatedTask.getDescription());
+            task.setStatus(updatedTask.getStatus());
+        }
+
+        return toDTO(taskRepository.save(task));
+    }
+
+    public TaskResponseDTO getTaskById(Integer id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Tâche non trouvée"));
+        return toDTO(task);
+    }
+
+    public Map<String, List<TaskResponseDTO>> getTasksGroupedByStatus(Integer adminId) {
+        List<Task> tasks = taskRepository.findByAdminId(adminId);
+        return tasks.stream()
+                .collect(Collectors.groupingBy(Task::getStatus,
+                        Collectors.mapping(this::toDTO, Collectors.toList())));
+    }
+
+    private TaskResponseDTO toDTO(Task task) {
+        TaskResponseDTO dto = new TaskResponseDTO();
         dto.setId(task.getId());
         dto.setName(task.getName());
         dto.setDescription(task.getDescription());
         dto.setDueDate(task.getDueDate());
         dto.setStatus(task.getStatus());
-        dto.setGroup(task.getGroup());
-        dto.setAdmin(task.getAdmin());
-        dto.setAssignedMembers(task.getAssignedMembers());
+        dto.setGroupId(task.getGroup().getId());
+        dto.setAdminId(task.getAdmin().getId());
+        dto.setAssignedMemberIds(
+                task.getAssignedMembers()
+                        .stream().map(User::getId).collect(Collectors.toList())
+        );
         return dto;
-    }
-
-    // Récupérer toutes les tâches d'un groupe
-    public List<Task> getTasksByGroup(Integer groupId) {
-        return taskRepository.findByGroupId(groupId);
     }
 }

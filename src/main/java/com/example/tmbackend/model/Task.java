@@ -3,12 +3,15 @@ package com.example.tmbackend.model;
 import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 
 @Entity
 @Table(name = "tasks")
 public class Task {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String name;
