@@ -7,7 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
 @Entity
-@Table(name = "tasks")
+@Table(name = "tasks", schema = "taskmaster_db")
 public class Task {
 
     @Id
@@ -33,6 +33,7 @@ public class Task {
     @ManyToMany
     @JoinTable(
             name = "task_assignees",
+            schema = "taskmaster_db",
             joinColumns = @JoinColumn(name = "task_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )

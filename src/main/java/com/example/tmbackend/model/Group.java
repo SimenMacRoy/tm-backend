@@ -6,10 +6,11 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "groups")
+@Table(name = "groups", schema="taskmaster_db")
 public class Group {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String name;
@@ -24,11 +25,13 @@ public class Group {
     @ManyToMany
     @JoinTable(
             name = "group_members",
+            schema="taskmaster_db",
             joinColumns = @JoinColumn(name = "group_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private List<User> members;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "group")
     private List<Task> tasks;
 

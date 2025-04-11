@@ -8,4 +8,5 @@ import java.util.List;
 public interface GroupRepository extends CrudRepository<Group, Integer> {
     Group findByName(String name);
 
+    List<Group> findByAdminId(Integer adminId);
 }

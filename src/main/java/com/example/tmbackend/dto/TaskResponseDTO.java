@@ -11,7 +11,7 @@ public class TaskResponseDTO {
     private String status;
     private Integer groupId;
     private Integer adminId;
-    private List<Integer> assignedMemberIds;
+    private List<Integer> assignedMembers;
 
     // Getters et setters
 
@@ -36,6 +36,6 @@ public class TaskResponseDTO {
     public Integer getAdminId() { return adminId; }
     public void setAdminId(Integer adminId) { this.adminId = adminId; }
 
-    public List<Integer> getAssignedMemberIds() { return assignedMemberIds; }
-    public void setAssignedMemberIds(List<Integer> assignedMemberIds) { this.assignedMemberIds = assignedMemberIds; }
+    public List<Integer> getAssignedMembers() { return assignedMembers; }
+    public void setAssignedMemberIds(List<Integer> assignedMemberIds) { this.assignedMembers = assignedMemberIds; }
 }

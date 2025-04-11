@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema = "taskmaster_db")
 public class User {
 
     @Id
@@ -25,6 +25,7 @@ public class User {
     @OneToMany(mappedBy = "admin")
     private List<Group> adminGroups;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "admin")
     private List<Task> adminTasks;
 

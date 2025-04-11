@@ -1,6 +1,8 @@
 package com.example.tmbackend.service;
 
+import com.example.tmbackend.dto.TaskCreateDTO;
 import com.example.tmbackend.dto.TaskResponseDTO;
+import com.example.tmbackend.dto.TaskUpdateDTO;
 import com.example.tmbackend.exceptions.NotFoundException;
 import com.example.tmbackend.model.Group;
 import com.example.tmbackend.model.Task;
@@ -11,8 +13,7 @@ import com.example.tmbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.stream.*;
 
 @Service
 public class TaskService {
@@ -37,25 +38,47 @@ public class TaskService {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public TaskResponseDTO createTask(Task task, Integer groupId, Integer adminId, List<Integer> memberIds) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new NotFoundException("Groupe non trouvé"));
-        User admin = userRepository.findById(adminId)
-                .orElseThrow(() -> new NotFoundException("Administrateur non trouvé"));
+    public List<TaskResponseDTO> getAllTasks() {
+        Iterable<Task> tasks = taskRepository.findAll();
+        return StreamSupport
+                .stream(tasks.spliterator(), false)
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
 
-        task.setGroup(group);
-        task.setAdmin(admin);
 
-        if (memberIds != null && !memberIds.isEmpty()) {
-            List<User> members = StreamSupport
-                    .stream(userRepository.findAllById(memberIds).spliterator(), false)
+    public TaskResponseDTO createTaskFromDTO(TaskCreateDTO dto) {
+        System.out.println("DTO reçu : " + dto.getName() + ", " + dto.getGroupId() + ", " + dto.getAdminId());
+
+        Group group = groupRepository.findById(dto.getGroupId())
+                .orElseThrow(() -> new NotFoundException("Groupe introuvable"));
+
+        User admin = userRepository.findById(dto.getAdminId())
+                .orElseThrow(() -> new NotFoundException("Admin introuvable"));
+
+        List<User> members = new ArrayList<>();
+        if (dto.getAssignedMembers() != null && !dto.getAssignedMembers().isEmpty()) {
+            members = StreamSupport
+                    .stream(userRepository.findAllById(dto.getAssignedMembers()).spliterator(), false)
                     .collect(Collectors.toList());
-            task.setAssignedMembers(members);
+            System.out.println("Membres assignés trouvés : " + members.size());
         }
 
+        Task task = new Task();
+        task.setName(dto.getName());
+        task.setDescription(dto.getDescription());
+        task.setDueDate(dto.getDueDate());
+        task.setStatus(dto.getStatus());
+        task.setGroup(group);
+        task.setAdmin(admin);
+        task.setAssignedMembers(members);
+
         Task saved = taskRepository.save(task);
+        System.out.println("Tâche sauvegardée avec l'ID : " + saved.getId());
+
         return toDTO(saved);
     }
+
 
     public void deleteTask(Integer id) {
         if (!taskRepository.existsById(id))
@@ -63,28 +86,43 @@ public class TaskService {
         taskRepository.deleteById(id);
     }
 
-    public TaskResponseDTO updateTask(Integer id, Task updatedTask, Integer userId, boolean isAdmin) {
+    public TaskResponseDTO updateTask(Integer id, TaskUpdateDTO dto, Integer userId, boolean isAdmin) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tâche introuvable"));
 
+        // Si c’est un administrateur, il peut tout modifier
         if (isAdmin) {
-            task.setName(updatedTask.getName());
-            task.setDueDate(updatedTask.getDueDate());
-            task.setStatus(updatedTask.getStatus());
-            task.setDescription(updatedTask.getDescription());
-            if (updatedTask.getAssignedMembers() != null) {
-                task.setAssignedMembers(updatedTask.getAssignedMembers());
+            task.setName(dto.getName());
+            task.setDueDate(dto.getDueDate());
+            task.setStatus(dto.getStatus());
+            task.setDescription(dto.getDescription());
+
+            if (dto.getAssignedMembers() != null && !dto.getAssignedMembers().isEmpty()) {
+                List<User> assignedUsers = StreamSupport
+                        .stream(userRepository.findAllById(dto.getAssignedMembers()).spliterator(), false)
+                        .collect(Collectors.toList());
+
+                task.setAssignedMembers(assignedUsers);
             }
         } else {
-            if (task.getAssignedMembers().stream().noneMatch(m -> m.getId().equals(userId))) {
-                throw new NotFoundException("Vous n'êtes pas autorisé à modifier cette tâche.");
+            // Si c’est un membre, il ne peut modifier que la description ou le statut
+            boolean isAssigned = task.getAssignedMembers().stream()
+                    .anyMatch(user -> user.getId().equals(userId));
+
+            if (!isAssigned) {
+                throw new NotFoundException("Vous n’êtes pas autorisé à modifier cette tâche.");
             }
-            task.setDescription(updatedTask.getDescription());
-            task.setStatus(updatedTask.getStatus());
+
+            task.setDescription(dto.getDescription());
+            task.setStatus(dto.getStatus());
         }
 
-        return toDTO(taskRepository.save(task));
+        // Enregistre les modifications et retourne le DTO mis à jour
+        Task updatedTask = taskRepository.save(task);
+        return toDTO(updatedTask);
     }
+
+
 
     public TaskResponseDTO getTaskById(Integer id) {
         Task task = taskRepository.findById(id)
@@ -98,6 +136,16 @@ public class TaskService {
                 .collect(Collectors.groupingBy(Task::getStatus,
                         Collectors.mapping(this::toDTO, Collectors.toList())));
     }
+
+    public Map<String, List<TaskResponseDTO>> getTasksByAssignedMemberGroupedByStatus(Integer userId) {
+        List<Task> tasks = taskRepository.findByAssignedMembers_Id(userId);
+        return tasks.stream()
+                .collect(Collectors.groupingBy(
+                        Task::getStatus,
+                        Collectors.mapping(this::toDTO, Collectors.toList())
+                ));
+    }
+
 
     private TaskResponseDTO toDTO(Task task) {
         TaskResponseDTO dto = new TaskResponseDTO();
