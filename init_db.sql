@@ -100,4 +100,6 @@ INSERT INTO task_assignees (task_id, user_id) VALUES
 (4, 7), (4, 4),
 (5, 4), (5, 5);
 
-SELECT * FROM groups ;
+SELECT MAX(id) FROM taskmaster_db.users;
+
+ALTER SEQUENCE users_id_seq RESTART WITH 8;
