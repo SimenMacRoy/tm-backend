@@ -6,6 +6,10 @@
 
 -- Supprimer les tables si elles existent déjà (pour éviter les conflits)
 
+DROP SCHEMA IF EXISTS taskmaster_db CASCADE;
+create schema if not exists taskmaster_db authorization postgres;
+
+
 DROP TABLE IF EXISTS taskmaster_db.task_assignees, taskmaster_db.tasks, taskmaster_db.group_members, taskmaster_db.groups, taskmaster_db.users CASCADE;
 -- Création de la table des utilisateurs
 CREATE TABLE taskmaster_db.users (
@@ -61,7 +65,7 @@ INSERT INTO taskmaster_db.users (id, first_name, last_name, email, telephone, ad
 (5, 'Mathis', 'Gagnon', 'mathis@gmail.com', '581-432-7890', '85 Av. des Pins, Québec, QC', '123', 'Membre'),
 (6, 'Yannick', 'Choundong', 'yannick.choundong@gmail.com', '581-245-1789', '4300 Avenue Gilles Boulet, Trois-Rivieres, QC', 'yan', 'Membre'),
 (7, 'Astrid', 'Tchantchou', 'astrid.tchantchou@gmail.com', '819-224-6754', '710 Rue du Pere Marquette, Trois-Rivieres, QC', 'acetrend', 'Membre'),
-(9, 'Albert', 'Einstein', 'albein@gmail.com', '4444456789' ,'112 Mercer Street, Berlin', '$2a$10$ZzpJZuQoTNDs/m8hZZdNT.XA07OoC/zxeqZDg6V975sIntsHyN38G', 'Admin'),
+(9, 'Albert', 'Einstein', 'albein@gmail.com', '4444456789' ,'112 Mercer Street, Berlin', '$2a$11$b151cDIdSHpTz4adcBLIz.ldncBEQB5Iyn6pWGk71aeZJXce/JvRC', 'Admin'),
 (10, 'Blanche', 'Simen', 'simenbla11@gmail.com', '418-556-8234', '8100 Rue Damas, Yaoundé, Cameroun', '$2a$10$Q2nXYGA0z1JMnWxi2Oq0MuFVij/PnfC1hZCbkzmLNaWU8Yrq0bbW.', 'Membre');
 
 
@@ -74,18 +78,19 @@ INSERT INTO taskmaster_db.groups (id, name, date_creation, admin_id) VALUES
 (5, 'Environnement de développement et composantes logicielles', '2025-03-12', 2),
 (6, 'groupe3', '2025-03-12', 3),
 (7, 'groupe1', '2025-03-12', 3),
-(8, 'groupe2', '2025-03-12', 3);
+(8, 'groupe2', '2025-03-12', 3),
+(9, 'Projet IA', '2025-03-13', 9);
 
 -- Insertion des membres dans les groupes
 INSERT INTO taskmaster_db.group_members (group_id, user_id) VALUES
 (1, 4), (1, 5),
 (2, 5), (2, 6), (2, 7), (2, 10),
-(3, 4), (3, 6), (3, 5),
+(3, 9), (3, 6), (3, 5),
 (4, 7), (4, 4),
 (5, 5), (5, 6), (5, 7),
-(6, 5), (6, 6), (6, 7),
+(6, 9), (6, 6), (6, 7),
 (7, 5), (7, 6), (7, 7),
-(8, 5), (8, 6), (8, 7);
+(9, 9), (8, 6), (8, 7);
 
 -- Insertion des tâches
 INSERT INTO taskmaster_db.tasks (id, name, description, due_date, status, group_id, admin_id) VALUES
@@ -114,4 +119,4 @@ ALTER SEQUENCE taskmaster_db.users_id_seq RESTART WITH 11;
 
 ALTER SEQUENCE taskmaster_db.tasks_id_seq RESTART WITH 7;
 
-ALTER SEQUENCE taskmaster_db.groups_id_seq RESTART WITH 9;
+ALTER SEQUENCE taskmaster_db.groups_id_seq RESTART WITH 10;
