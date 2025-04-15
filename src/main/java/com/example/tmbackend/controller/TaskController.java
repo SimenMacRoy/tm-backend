@@ -88,4 +88,12 @@ public class TaskController {
         return taskRepository.countByGroupId(groupId);
     }
 
+    @GetMapping("/search")
+    public List<TaskResponseDTO> searchTasksByName(@RequestParam String name) {
+        return taskService.searchTasksByName(name);
+    }
+
+
+
+
 }

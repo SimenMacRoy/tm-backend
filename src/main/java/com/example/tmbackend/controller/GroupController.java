@@ -75,5 +75,10 @@ public class GroupController {
     }
 
 
+    @GetMapping("/search")
+    public List<GroupResponseDTO> searchGroupsByName(@RequestParam String name) {
+        return groupService.searchGroupsByName(name);
+    }
+
 
 }

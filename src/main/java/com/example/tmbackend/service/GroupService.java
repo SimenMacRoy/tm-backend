@@ -11,6 +11,7 @@ import com.example.tmbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -125,5 +126,20 @@ public class GroupService {
         Group updated = groupRepository.save(group);
         return toDTO(updated);
     }
+
+    public List<GroupResponseDTO> searchGroupsByName(String name) {
+        List<Group> all = (List<Group>) groupRepository.findAll();
+        return all.stream()
+                .filter(group -> normalize(group.getName()).equalsIgnoreCase(normalize(name)))
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    private String normalize(String text) {
+        return Normalizer.normalize(text.toLowerCase(), Normalizer.Form.NFD)
+                .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+                .trim();
+    }
+
 
 }
