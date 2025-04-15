@@ -71,7 +71,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authenticationProvider(authenticationProvider()) //  Ceci est crucial
+                //.authenticationProvider(authenticationProvider()) //  Ceci est crucial
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptionHandlingConfigurer ->

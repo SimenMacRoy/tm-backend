@@ -6,8 +6,10 @@ import com.example.tmbackend.exceptions.NotFoundException;
 import com.example.tmbackend.model.Group;
 import com.example.tmbackend.model.User;
 import com.example.tmbackend.repository.GroupRepository;
+import com.example.tmbackend.repository.TaskRepository;
 import com.example.tmbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -19,10 +21,13 @@ public class GroupService {
 
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
 
-    public GroupService(GroupRepository groupRepository, UserRepository userRepository) {
+
+    public GroupService(GroupRepository groupRepository, UserRepository userRepository, TaskRepository taskRepository) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
+        this.taskRepository = taskRepository;
     }
 
     public GroupResponseDTO createGroupFromDTO(GroupCreateDTO dto) {
@@ -52,10 +57,11 @@ public class GroupService {
                 .orElseThrow(() -> new NotFoundException("Groupe introuvable"));
     }
 
+    @Transactional
     public void deleteGroup(Integer id) {
         if (!groupRepository.existsById(id))
             throw new NotFoundException("Groupe introuvable pour suppression");
-
+        taskRepository.deleteByGroupId(id);
         groupRepository.deleteById(id);
     }
 
@@ -111,6 +117,13 @@ public class GroupService {
                         .collect(Collectors.toList())
         );
         return dto;
+    }
+
+    public GroupResponseDTO renameGroup(Integer groupId, String newName) {
+        Group group = getGroupById(groupId);
+        group.setName(newName);
+        Group updated = groupRepository.save(group);
+        return toDTO(updated);
     }
 
 }

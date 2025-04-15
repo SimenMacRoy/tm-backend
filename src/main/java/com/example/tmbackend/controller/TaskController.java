@@ -4,6 +4,7 @@ import com.example.tmbackend.dto.TaskCreateDTO;
 import com.example.tmbackend.dto.TaskResponseDTO;
 import com.example.tmbackend.dto.TaskUpdateDTO;
 import com.example.tmbackend.model.Task;
+import com.example.tmbackend.repository.TaskRepository;
 import com.example.tmbackend.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,10 @@ public class TaskController {
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
+
+    @Autowired
+    private TaskRepository taskRepository;
+
 
     @GetMapping
     public List<TaskResponseDTO> getAllTasks() {
@@ -76,6 +81,11 @@ public class TaskController {
     @GetMapping("/assigned/{memberId}/grouped")
     public Map<String, List<TaskResponseDTO>> getTasksGroupedByStatusForMember(@PathVariable Integer memberId) {
         return taskService.getTasksByAssignedMemberGroupedByStatus(memberId);
+    }
+
+    @GetMapping("/count-by-group/{groupId}")
+    public long countTasksForGroup(@PathVariable Integer groupId) {
+        return taskRepository.countByGroupId(groupId);
     }
 
 }

@@ -11,5 +11,7 @@ public interface TaskRepository extends CrudRepository<Task, Integer> {
     List<Task> findByAdminId(Integer adminId);
     List<Task> findByAssignedMembers_Id(Integer userId);
     List<Task> findByAdminIdAndStatus(Integer adminId, String status);
+    void deleteByGroupId(Integer groupId);
+    long countByGroupId(Integer groupId);
 }
 
