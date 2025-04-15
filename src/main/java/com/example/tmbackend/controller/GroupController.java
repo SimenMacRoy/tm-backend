@@ -5,9 +5,11 @@ import com.example.tmbackend.dto.GroupResponseDTO;
 import com.example.tmbackend.model.Group;
 import com.example.tmbackend.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -42,9 +44,11 @@ public class GroupController {
     }
 
     @GetMapping("/{id}")
-    public Group getGroupById(@PathVariable Integer id) {
-        return groupService.getGroupById(id);
+    public GroupResponseDTO getGroupById(@PathVariable Integer id) {
+        Group group = groupService.getGroupById(id);
+        return groupService.toDTO(group);
     }
+
 
     @DeleteMapping("/{id}")
     public void deleteGroup(@PathVariable Integer id) {
@@ -52,12 +56,29 @@ public class GroupController {
     }
 
     @PutMapping("/{id}/add-members")
-    public Group addMembersToGroup(@PathVariable Integer id, @RequestBody List<Integer> newMemberIds) {
-        return groupService.addMembers(id, newMemberIds);
+    public ResponseEntity<Void> addMembersToGroup(@PathVariable Integer id, @RequestBody List<Integer> newMemberIds) {
+        groupService.addMembers(id, newMemberIds);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}/remove-members")
-    public Group removeMembersFromGroup(@PathVariable Integer id, @RequestBody List<Integer> memberIdsToRemove) {
-        return groupService.removeMembers(id, memberIdsToRemove);
+    public GroupResponseDTO removeMembersFromGroup(@PathVariable Integer id, @RequestBody List<Integer> memberIdsToRemove) {
+        Group updatedGroup = groupService.removeMembers(id, memberIdsToRemove);
+        return groupService.toDTO(updatedGroup);
     }
+
+
+    @PutMapping("/{id}/rename")
+    public GroupResponseDTO renameGroup(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+        String newName = body.get("name");
+        return groupService.renameGroup(id, newName);
+    }
+
+
+    @GetMapping("/search")
+    public List<GroupResponseDTO> searchGroupsByName(@RequestParam String name) {
+        return groupService.searchGroupsByName(name);
+    }
+
+
 }
