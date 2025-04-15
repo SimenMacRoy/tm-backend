@@ -12,6 +12,7 @@ import com.example.tmbackend.repository.TaskRepository;
 import com.example.tmbackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.text.Normalizer;
 import java.util.*;
 import java.util.stream.*;
 
@@ -21,6 +22,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
+
 
     public TaskService(TaskRepository taskRepository, UserRepository userRepository, GroupRepository groupRepository) {
         this.taskRepository = taskRepository;
@@ -147,7 +149,7 @@ public class TaskService {
     }
 
 
-    private TaskResponseDTO toDTO(Task task) {
+    public TaskResponseDTO toDTO(Task task) {
         TaskResponseDTO dto = new TaskResponseDTO();
         dto.setId(task.getId());
         dto.setName(task.getName());
@@ -162,4 +164,21 @@ public class TaskService {
         );
         return dto;
     }
+
+    public List<TaskResponseDTO> searchTasksByName(String name) {
+        List<Task> all = (List<Task>) taskRepository.findAll();
+        return all.stream()
+                .filter(task -> normalize(task.getName()).equalsIgnoreCase(normalize(name)))
+                .map(this::toDTO) // transforme chaque tâche en DTO
+                .collect(Collectors.toList());
+    }
+
+    private String normalize(String text) {
+        return Normalizer.normalize(text.toLowerCase(), Normalizer.Form.NFD)
+                .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+                .trim();
+    }
+
+
+
 }

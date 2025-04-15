@@ -46,6 +46,7 @@ public class UserService {
 
     public User updateUser(User user) {
         Optional<User> existingUser = userRepository.findById(user.getId());
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
         if (existingUser.isPresent()) {
             User updatedUser = existingUser.get();
             updatedUser.setFirstName(user.getFirstName());
@@ -53,7 +54,7 @@ public class UserService {
             updatedUser.setEmail(user.getEmail());
             updatedUser.setTelephone(user.getTelephone());
             updatedUser.setAddress(user.getAddress());
-            updatedUser.setPassword(user.getPassword());
+            updatedUser.setPassword(encodedPassword);
             updatedUser.setRole(user.getRole());
             return userRepository.save(updatedUser);
         } else {
