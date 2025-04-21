@@ -60,6 +60,8 @@ public class UserService {
             if(user.getPassword() != null && !user.getPassword().isEmpty()){
                 String encryptedPassword = passwordEncoder.encode(user.getPassword());
                 updatedUser.setPassword(encryptedPassword);
+            } else {
+                updatedUser.setPassword(existingUser.get().getPassword());
             }
             return userRepository.save(updatedUser);
         } else {
