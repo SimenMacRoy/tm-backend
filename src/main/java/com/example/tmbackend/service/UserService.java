@@ -56,6 +56,11 @@ public class UserService {
             updatedUser.setAddress(user.getAddress());
             updatedUser.setPassword(encodedPassword);
             updatedUser.setRole(user.getRole());
+
+            if(user.getPassword() != null && !user.getPassword().isBlank()){
+                String encryptedPassword = passwordEncoder.encode(user.getPassword());
+                updatedUser.setPassword(encryptedPassword);
+            }
             return userRepository.save(updatedUser);
         } else {
             throw new NotFoundException("L'utilisateur avec l'ID " + user.getId() + " n'existe pas.");
