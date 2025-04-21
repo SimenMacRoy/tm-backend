@@ -44,13 +44,6 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Google Cloud SQL Socket Factory -->
-		<dependency>
-			<groupId>com.google.cloud</groupId>
-			<artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
-			<version>6.1.1</version>
-		</dependency>
-
 		<!-- JWT -->
 		<dependency>
 			<groupId>com.auth0</groupId>
