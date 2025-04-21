@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**") // Permet l'accès à toutes les routes
-                .allowedOrigins("http://localhost:4200") // URL du frontend
+                .allowedOrigins("https://taskmaster-c6e9b.web.app") // URL du frontend
                 .exposedHeaders("Authorization")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Méthodes autorisées
                 .allowedHeaders("*") // Autorise tous les en-têtes

@@ -15,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/task-master/auth")
-@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "Authorization")
+@CrossOrigin(origins = "https://taskmaster-c6e9b.web.app", allowedHeaders = "*", exposedHeaders = "Autorization")
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
