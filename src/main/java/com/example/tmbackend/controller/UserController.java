@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/task-master/users")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "https://taskmaster-c6e9b.web.app", allowedHeaders = "*", exposedHeaders = "Autorization")
 public class UserController {
 
     private final UserService userService ;
