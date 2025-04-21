@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/task-master/tasks")
-@CrossOrigin(origins = "https://taskmaster-c6e9b.web.app", allowedHeaders = "*", exposedHeaders = "Autorization")
+@CrossOrigin(origins = "https://taskmaster-c6e9b.web.app", allowedHeaders = "*", exposedHeaders = "Authorization")
 public class TaskController {
 
     private final TaskService taskService;
