@@ -57,7 +57,7 @@ public class UserService {
             updatedUser.setPassword(encodedPassword);
             updatedUser.setRole(user.getRole());
 
-            if(user.getPassword() != null && !user.getPassword().isBlank()){
+            if(user.getPassword() != null && !user.getPassword().isEmpty()){
                 String encryptedPassword = passwordEncoder.encode(user.getPassword());
                 updatedUser.setPassword(encryptedPassword);
             }
