@@ -46,7 +46,7 @@ public class UserService {
 
     public User updateUser(User user) {
         Optional<User> existingUser = userRepository.findById(user.getId());
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
+
         if (existingUser.isPresent()) {
             User updatedUser = existingUser.get();
             updatedUser.setFirstName(user.getFirstName());
@@ -54,20 +54,23 @@ public class UserService {
             updatedUser.setEmail(user.getEmail());
             updatedUser.setTelephone(user.getTelephone());
             updatedUser.setAddress(user.getAddress());
-            updatedUser.setPassword(encodedPassword);
             updatedUser.setRole(user.getRole());
 
-            if(user.getPassword() != null && !user.getPassword().isEmpty()){
+            // Mise à jour conditionnelle du mot de passe
+            if (user.getPassword() != null && !user.getPassword().isBlank()) {
                 String encryptedPassword = passwordEncoder.encode(user.getPassword());
                 updatedUser.setPassword(encryptedPassword);
             } else {
+                // conserver l'ancien mot de passe
                 updatedUser.setPassword(existingUser.get().getPassword());
             }
+
             return userRepository.save(updatedUser);
         } else {
             throw new NotFoundException("L'utilisateur avec l'ID " + user.getId() + " n'existe pas.");
         }
     }
+
 
 
     public UserDTO mapToDTO(User user) {
